@@ -5370,10 +5370,11 @@ d_lite_initialize_copy(VALUE copy, VALUE date)
 	if (simple_dat_p(bdat)) {
 	    if (simple_dat_p(adat)) {
 		adat->s = bdat->s;
+		RB_OBJ_WRITTEN(copy, Qundef, adat->s.nth);
 	    }
 	    else {
 		adat->c.flags = bdat->s.flags | COMPLEX_DAT;
-		adat->c.nth = bdat->s.nth;
+		RB_OBJ_WRITE(copy, &adat->c.nth, bdat->s.nth);
 		adat->c.jd = bdat->s.jd;
 		adat->c.df = 0;
 		adat->c.sf = INT2FIX(0);
@@ -5397,6 +5398,8 @@ d_lite_initialize_copy(VALUE copy, VALUE date)
 			 "cannot load complex into simple");
 
 	    adat->c = bdat->c;
+	    RB_OBJ_WRITTEN(copy, Qundef, adat->c.nth);
+	    RB_OBJ_WRITTEN(copy, Qundef, adat->c.sf);
 	}
     }
     return copy;

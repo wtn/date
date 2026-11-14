@@ -158,6 +158,25 @@ class TestDate < Test::Unit::TestCase
     assert_instance_of(String, d.to_s)
   end
 
+  def test_initialize_copy_write_barrier
+    omit unless GC.respond_to?(:verify_internal_consistency)
+
+    assert_separately(%w[-rdate], <<~"end;")
+      dates = [
+        Date.new(2001,2,3),
+        DateTime.new(2001,2,3,4,5,6),
+        DateTime.new(2001,2,3,4,5,6),
+      ]
+      4.times {GC.start}
+      dates[0].__send__(:initialize_copy, Date.new(10**25,2,3))
+      dates[1].__send__(:initialize_copy, Date.new(10**25,2,3))
+      dates[2].__send__(:initialize_copy, DateTime.new(2001,2,3,4,5,Rational(1,3)))
+      GC.verify_internal_consistency
+      assert_equal([10**25, 10**25, 2001], dates.map(&:year))
+      assert_equal(Rational(1,3), dates[2].sec_fraction)
+    end;
+  end
+
   def test_submillisecond_comparison
     d1 = DateTime.new(2013, 12, 6, 0, 0, Rational(1, 10000))
     d2 = DateTime.new(2013, 12, 6, 0, 0, Rational(2, 10000))
