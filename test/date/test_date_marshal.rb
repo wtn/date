@@ -79,6 +79,22 @@ class TestDateMarshal < Test::Unit::TestCase
     assert_equal(0, d.offset)
   end
 
+  def test_marshal_load_old_format_float
+    d = DateTime.allocate
+    d.marshal_load([0.25, 0, Date::ITALY])
+    d2 = DateTime.jd(0, 18)
+    assert_equal(d2, d)
+    assert_equal(d2.hash, d.hash)
+    assert_equal(d, Marshal.load(Marshal.dump(d)))
+
+    d = Date.allocate
+    d.marshal_load([0.5, Date::ITALY])
+    d2 = Date.allocate
+    d2.marshal_load([Rational(1, 2), Date::ITALY])
+    assert_equal(d2, d)
+    assert_equal(d2.hash, d.hash)
+  end
+
   def test_memsize
     require 'objspace'
     t = DateTime.new(2018, 11, 13)

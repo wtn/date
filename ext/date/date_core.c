@@ -3361,6 +3361,9 @@ old_to_new(VALUE ajd, VALUE of, VALUE sg,
 {
     VALUE jd, df, sf, of2, t;
 
+    if (RB_TYPE_P(ajd, T_FLOAT))
+	ajd = f_to_r(ajd);
+
     decode_day(f_add(ajd, half_days_in_day),
 	       &jd, &df, &sf);
     t = day_to_sec(of);
